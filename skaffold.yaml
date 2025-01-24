@@ -27,6 +27,14 @@ build:
         manual:
           - src: "**/*.js"
             dest: .
+    - image: us.gcr.io/tonal-history-444709-a7/tickets
+      context: tickets
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
 manifests:
   rawYaml:
     - ./infra/k8s/*
