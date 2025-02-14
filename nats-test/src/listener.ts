@@ -10,27 +10,7 @@ const stan = nats.connect("ticketing", randomBytes(4).toString("hex"), {
 stan.on("connect", () => {
   console.log("Listener connected to NATS");
 
-  const options = stan
-    .subscriptionOptions()
-    .setManualAckMode(true)
-    .setDeliverAllAvailable()
-    .setDurableName("accounting-service");
-
-  const subscription = stan.subscribe(
-    "ticket:created",
-    "queue-group-name",
-    options
-  );
-
-  subscription.on("message", (msg: Message) => {
-    const data = msg.getData();
-
-    if (typeof data === "string") {
-      console.log(`Received event #${msg.getSequence()}, with data: ${data}`);
-    }
-
-    msg.ack();
-  });
+  new TicketCreatedListener(stan).listen();
 });
 
 abstract class Listener {
@@ -73,5 +53,16 @@ abstract class Listener {
     return typeof data === "string"
       ? JSON.parse(data)
       : JSON.parse(data.toString("utf8"));
+  }
+}
+
+class TicketCreatedListener extends Listener {
+  subject = "ticket:created";
+  queueGroupName = "payments-service";
+
+  onMessage(data: any, msg: Message) {
+    console.log("Event data!", data);
+
+    msg.ack();
   }
 }
