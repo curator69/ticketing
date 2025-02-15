@@ -10,32 +10,26 @@ const stan = nats.connect("ticketing", "abc", {
 stan.on("connect", async () => {
   console.log("Publisher connected to NATS");
 
-  stan.on("close", () => {
-    console.log("NATS connection closed!");
-    process.exit();
-  });
-
   const publisher = new TicketCreatedPublisher(stan);
+
   try {
     await publisher.publish({
       id: "123",
       title: "concert",
       price: 20,
+      userId: "123",
     });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.log(err);
   }
 
   // const data = JSON.stringify({
-  //   id: "123",
-  //   title: "concert",
+  //   id: '123',
+  //   title: 'concert',
   //   price: 20,
   // });
 
-  // stan.publish("ticket:created", data, () => {
-  //   console.log("Event published");
+  // stan.publish('ticket:created', data, () => {
+  //   console.log('Event published');
   // });
 });
-
-process.on("SIGINT", () => stan.close());
-process.on("SIGTERM", () => stan.close());
