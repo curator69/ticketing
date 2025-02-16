@@ -9,10 +9,10 @@ import {
   NotFoundError,
 } from "@curator-ticketing/common";
 
-import { createTicketRouter } from "./routes/new";
-import { showTicketRouter } from "./routes/show";
-import { indexTicketRouter } from "./routes";
-import { updateTicketRouter } from "./routes/update";
+import { deleteOrderRouter } from "./routes/delete";
+import { indexOrderRouter } from "./routes";
+import { newOrderRouter } from "./routes/new";
+import { showOrderRouter } from "./routes/show";
 
 const app = express();
 app.set("trust proxy", true);
@@ -23,10 +23,10 @@ app.use(
 
 app.use(currentUser);
 
-app.use(createTicketRouter);
-app.use(showTicketRouter);
-app.use(indexTicketRouter);
-app.use(updateTicketRouter);
+app.use(deleteOrderRouter);
+app.use(indexOrderRouter);
+app.use(newOrderRouter);
+app.use(showOrderRouter);
 
 app.all("*", async (req: Request, res: Response) => {
   throw new NotFoundError();
