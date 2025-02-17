@@ -11,5 +11,15 @@ export class TicketCreatedListener extends Listener<TicketCreatedEvent> {
   readonly subject = Subjects.TicketCreated;
   queueGroupName = queueGroupName;
 
-  onMessage(data: TicketCreatedEvent["data"], msg: Message): void {}
+  async onMessage(data: TicketCreatedEvent["data"], msg: Message) {
+    const { title, price } = data;
+
+    const ticket = Ticket.build({
+      title,
+      price,
+    });
+    await ticket.save();
+
+    msg.ack();
+  }
 }
