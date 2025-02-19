@@ -15,7 +15,7 @@ const setup = async () => {
     title: "concert",
     price: 20,
   });
-  ticket.save();
+  await ticket.save();
 
   // create a fake data event
   const data: TicketUpdatedEvent["data"] = {
@@ -36,6 +36,26 @@ const setup = async () => {
   return { listener, data, msg, ticket };
 };
 
-it("finds, updates, and saves a ticket", async () => {});
+it("finds, updates, and saves a ticket", async () => {
+  const { listener, data, msg, ticket } = await setup();
 
-it("acks the message", async () => {});
+  // call the onMessage function with the data object + message object
+  await listener.onMessage(data, msg);
+
+  // write assertions to make sure a ticket was created!
+  const updatedTicket = await Ticket.findById(ticket.id);
+
+  expect(updatedTicket!.title).toEqual(data.title);
+  expect(updatedTicket!.price).toEqual(data.price);
+  expect(updatedTicket!.version).toEqual(data.version);
+});
+
+it("acks the message", async () => {
+  const { listener, data, msg } = await setup();
+
+  // call the onMessage function with the data object + message object
+  await listener.onMessage(data, msg);
+
+  // write assertions to make sure ack function is called
+  expect(msg.ack).toHaveBeenCalled();
+});
