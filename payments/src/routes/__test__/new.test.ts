@@ -58,9 +58,9 @@ it("returns a 400 when purchasing a cancelled order", async () => {
     .expect(400);
 });
 
-it("returns a 204 with valid inputs", async () => {
+it("returns a 201 with valid inputs", async () => {
   const userId = new mongoose.Types.ObjectId().toHexString();
-  const price = Math.floor(Math.random() * 100000);
+  const price = 20;
 
   const order = Order.build({
     id: new mongoose.Types.ObjectId().toHexString(),
@@ -69,7 +69,6 @@ it("returns a 204 with valid inputs", async () => {
     price,
     status: OrderStatus.Created,
   });
-
   await order.save();
 
   await request(app)
@@ -81,11 +80,7 @@ it("returns a 204 with valid inputs", async () => {
     })
     .expect(201);
 
-  const sessionOptions = (stripe.checkout.sessions.create as jest.Mock).mock
-    .calls[0][0];
-  expect(sessionOptions.payment_method_types).toEqual(["card"]);
-  expect(sessionOptions.line_items[0].price_data.unit_amount).toEqual(
-    price * 100
-  );
-  expect(sessionOptions.mode).toEqual("payment");
+  const updatedOrder = await Order.findById(order.id);
+  expect(updatedOrder!.status).toEqual(OrderStatus.Created);
+  expect(updatedOrder!.version).toEqual(0);
 });

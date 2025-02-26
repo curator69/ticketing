@@ -1,7 +1,14 @@
 export const stripe = {
-  checkout: {
-    sessions: {
-      create: jest.fn().mockResolvedValue({ id: "cs_123" }),
-    },
+  charges: {
+    create: jest.fn().mockResolvedValue({}),
+    list: jest.fn().mockResolvedValue({
+      data: [
+        {
+          id: "ch_123",
+          amount: 2000,
+          currency: "usd",
+        },
+      ],
+    }),
   },
 };
