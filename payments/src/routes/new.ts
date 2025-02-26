@@ -34,11 +34,32 @@ router.post(
       throw new BadRequestError("Cannot pay for an cancelled order");
     }
 
-    await stripe.charges.create({
-      currency: "usd",
-      amount: order.price * 100,
-      source: token,
+    // new method of creating a payment
+    await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            unit_amount: order.price * 100,
+            product_data: {
+              name: "T-shirt",
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: "http://localhost:3000/orders",
+      cancel_url: "http://localhost:3000/orders",
     });
+
+    // old method of creating a payment
+    // await stripe.charges.create({
+    //   currency: "usd",
+    //   amount: order.price * 100,
+    //   source: token,
+    // });
 
     res.send({ success: true });
   }
