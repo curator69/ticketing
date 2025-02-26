@@ -3,7 +3,7 @@ import { app } from "../../app";
 import mongoose from "mongoose";
 import { Order } from "../../models/order";
 import { OrderStatus } from "@curator-ticketing/common";
-import { stripe } from "../../stripe";
+import { Payment } from "../../models/payment";
 
 it("returns a 404 when purchasing an order that does not exist", async () => {
   await request(app)
@@ -80,7 +80,10 @@ it("returns a 201 with valid inputs", async () => {
     })
     .expect(201);
 
-  const updatedOrder = await Order.findById(order.id);
-  expect(updatedOrder!.status).toEqual(OrderStatus.Created);
-  expect(updatedOrder!.version).toEqual(0);
+  const payment = await Payment.findOne({
+    orderId: order.id,
+  });
+
+  expect(payment).not.toBeNull();
+  expect(payment!.orderId).toEqual(order.id);
 });
