@@ -9,6 +9,7 @@ import {
   OrderStatus,
 } from "@curator-ticketing/common";
 import { Order } from "../models/order";
+import { stripe } from "../stripe";
 
 const router = express.Router();
 
@@ -33,7 +34,12 @@ router.post(
       throw new BadRequestError("Cannot pay for an cancelled order");
     }
 
-    // TODO: charge the user
+    await stripe.charges.create({
+      currency: "usd",
+      amount: order.price * 100,
+      source: token,
+    });
+
     res.send({ success: true });
   }
 );
