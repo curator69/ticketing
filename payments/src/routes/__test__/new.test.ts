@@ -3,6 +3,7 @@ import { app } from "../../app";
 import mongoose from "mongoose";
 import { Order } from "../../models/order";
 import { OrderStatus } from "@curator-ticketing/common";
+import { stripe } from "../../stripe";
 
 jest.mock("../../stripe");
 
@@ -81,4 +82,12 @@ it("returns a 204 with valid inputs", async () => {
       orderId: order.id,
     })
     .expect(201);
+
+  const sessionOptions = (stripe.checkout.sessions.create as jest.Mock).mock
+    .calls[0][0];
+  expect(sessionOptions.payment_method_types).toEqual(["card"]);
+  expect(sessionOptions.line_items[0].price_data.unit_amount).toEqual(
+    price * 100
+  );
+  expect(sessionOptions.mode).toEqual("payment");
 });
